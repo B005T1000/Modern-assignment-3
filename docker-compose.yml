@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: recipe-backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend/recipes.db:/app/recipes.db:rw
+    environment:
+      - PORT=5000
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: "http://backend:5000"
+    container_name: recipe-frontend
+    ports:
+      - "3001:3000"
+    environment:
+      - VITE_API_URL=http://backend:5000
+    depends_on:
+      - backend
+
+networks:
+  default:
+    name: recipe-app-network
+
+volumes:
+  backend-data:
+    driver: local
